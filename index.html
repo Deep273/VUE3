@@ -8,29 +8,11 @@
 </head>
 <body>
 <div id="app">
-    <!-- Компонент для создания задачи -->
-    <div class="task-form">
-        <task-form @add-task="addTask"></task-form>
-    </div>
+    <!-- Вставляем компонент формы для создания задачи -->
+    <task-form @add-task="addTask"></task-form>
 
-    <!-- Список задач -->
-    <div v-if="tasks.length" class="task-list">
-        <h1 style="text-align: center; color: #333; font-size: 2.5em;">Kanban доска</h1>
-        <h2>Список задач</h2>
-        <ul>
-            <li v-for="(task, index) in tasks" :key="index" class="task-item">
-                <strong>{{ task.title }}</strong>
-                <p>{{ task.description }}</p>
-                <p><em>Дедлайн: {{ task.deadline }}</em></p>
-                <p>Status: <span :class="task.status === 'unfinished' ? 'unfinished task-status' : 'finished task-status'">{{ task.status }}</span></p>
-            </li>
-        </ul>
-    </div>
-
-    <!-- Сообщение, если задач нет -->
-    <div v-else>
-        <p style="text-align: center; color: #888;">Нет задач!</p>
-    </div>
+    <!-- Вставляем компонент для отображения запланированных задач -->
+    <task-column :tasks="tasks"></task-column>
 </div>
 
 <!-- Подключаем Vue -->

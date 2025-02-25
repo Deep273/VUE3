@@ -59,6 +59,28 @@ Vue.component('task-form', {
     `
 });
 
+Vue.component('task-column', {
+    props: {
+        tasks: {
+            type: Array,
+            required: true
+        }
+    },
+    template: `
+    <div>
+      <h2>Запланированные задачи</h2>
+      <ul>
+        <li v-for="(task, index) in tasks" :key="index">
+          <strong>{{ task.title }}</strong>
+          <p>{{ task.description }}</p>
+          <p><em>Дедлайн: {{ task.deadline }}</em></p>
+          <p>Status: {{ task.status }}</p>
+        </li>
+      </ul>
+    </div>
+  `
+});
+
 new Vue({
     el: '#app',
     data() {
