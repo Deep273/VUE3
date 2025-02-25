@@ -110,6 +110,18 @@ Vue.component('task-column', {
           />
         </li>
       </ul>
+
+      <h2>Выполненные задачи</h2> <!-- Новый столбец для выполненных задач -->
+      <ul>
+        <li v-for="(task, index) in tasks.filter(task => task.status === 'finished')" :key="index">
+          <task-item
+            :task="task"
+            :index="index"
+            @delete-task="deleteTask"
+            @update-task="updateTask"
+          />
+        </li>
+      </ul>
     </div>
   `
 });
@@ -137,7 +149,11 @@ Vue.component('task-item', {
     },
     methods: {
         deleteTask() {
-            this.$emit('delete-task', this.index); // Эмитируем удаление задачи
+            if (this.task.status === 'unfinished') { // Проверяем, что задача в статусе "Запланированная"
+                this.$emit('delete-task', this.index); // Эмитируем удаление задачи
+            } else {
+                alert('Задачу можно удалить только в статусе "Запланированная"');
+            }
         },
         editTask() {
             this.editing = true; // Включаем режим редактирования
@@ -173,6 +189,10 @@ Vue.component('task-item', {
             } else {
                 alert('Укажите причину возврата');
             }
+        },
+        moveToFinished() { // Новый метод для перемещения в статус "finished"
+            const updatedTask = { ...this.task, status: 'finished' };
+            this.$emit('update-task', { index: this.index, updatedTask });
         }
     },
     template: `
@@ -202,18 +222,21 @@ Vue.component('task-item', {
         <p v-if="task.lastEdited">Последнее редактирование: {{ task.lastEdited }}</p>
         <p v-if="task.returnReason">Причина возврата: {{ task.returnReason }}</p> <!-- Отображение причины возврата -->
         <button @click="editTask">Редактировать</button>
-        <button @click="deleteTask">Удалить</button>
+        <button v-if="task.status === 'unfinished'" @click="deleteTask">Удалить</button> <!-- Удаление только в статусе "unfinished" -->
         <button v-if="task.status === 'unfinished'" @click="moveToInProgress">Далее</button>
         <button v-if="task.status === 'inProgress'" @click="moveToTesting">Тестирование</button>
         <div v-if="task.status === 'testing'">
           <label for="returnReason">Причина возврата:</label>
           <textarea id="returnReason" v-model="returnReason" required></textarea>
           <button @click="returnToInProgress">Вернуть в работу</button>
+          <!-- Кнопка для перемещения в статус "finished" -->
+          <button @click="moveToFinished">Завершить</button>
         </div>
       </div>
     </div>
   `
 });
+
 
 
 
