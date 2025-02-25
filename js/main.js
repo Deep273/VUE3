@@ -1,166 +1,241 @@
-// Компонент для создания новой задачи
-Vue.component('task-creator', {
+Vue.component('task-form', {
     data() {
         return {
-            taskTitle: '',
-            taskDescription: '',
-            taskDeadline: ''
+            title: '',
+            description: '',
+            deadline: ''
         };
     },
     computed: {
-        canSubmit() {
-            return this.taskTitle && this.taskDescription && this.taskDeadline;
+        canAddTask() {
+            return this.title && this.description && this.deadline;
         }
     },
     methods: {
-        createTask() {
+        submitTask() {
             const newTask = {
-                title: this.taskTitle,
-                description: this.taskDescription,
-                deadline: this.taskDeadline,
-                status: 'not-started',
-                lastUpdated: new Date().toISOString()
+                title: this.title,
+                description: this.description,
+                deadline: this.deadline,
+                status: 'unfinished',
+                lastEdited: new Date().toISOString() // Временной штамп последнего редактирования
             };
 
+            // Эмитируем добавление задачи
             this.$emit('add-task', newTask);
-            this.clearForm();
+            this.resetForm();
         },
-        clearForm() {
-            this.taskTitle = '';
-            this.taskDescription = '';
-            this.taskDeadline = '';
+        resetForm() {
+            this.title = '';
+            this.description = '';
+            this.deadline = '';
         }
     },
     template: `
-    <form @submit.prevent="createTask">
-        <div>
-            <label for="task-title">Заголовок:</label>
-            <input type="text" v-model="taskTitle" id="task-title" required />
-        </div>
-        <div>
-            <label for="task-description">Описание:</label>
-            <textarea v-model="taskDescription" id="task-description" required></textarea>
-        </div>
-        <div>
-            <label for="task-deadline">Дедлайн:</label>
-            <input type="date" v-model="taskDeadline" id="task-deadline" required />
-        </div>
-        <button type="submit" :disabled="!canSubmit">Добавить задачу</button>
+  <div>
+    <form @submit.prevent="submitTask">
+      <div>
+        <label for="title">Заголовок</label>
+        <input type="text" id="title" v-model="title" required />
+      </div>
+
+      <div>
+        <label for="description">Описание</label>
+        <textarea id="description" v-model="description" required></textarea>
+      </div>
+
+      <div>
+        <label for="deadline">Дедлайн</label>
+        <input type="date" id="deadline" v-model="deadline" required />
+      </div>
+
+      <button type="submit" :disabled="!canAddTask">Создать задачу</button>
     </form>
-    `
+  </div>
+  `
 });
 
-// Компонент для отображения задач и их управления
-Vue.component('task-board', {
+
+
+
+Vue.component('task-column', {
     props: {
-        tasks: Array
-    },
-    data() {
-        return {
-            currentEditIndex: null,
-            editTitle: '',
-            editDescription: '',
-            editDeadline: ''
-        };
+        tasks: {
+            type: Array,
+            required: true
+        }
     },
     methods: {
-        removeTask(index) {
-            this.$emit('remove-task', index);
+        deleteTask(index) {
+            this.$emit('delete-task', index); // Эмитируем удаление задачи
         },
-        startEditing(index) {
-            const task = this.tasks[index];
-            this.currentEditIndex = index;
-            this.editTitle = task.title;
-            this.editDescription = task.description;
-            this.editDeadline = task.deadline;
-        },
-        saveEditedTask() {
-            const updatedTask = {
-                title: this.editTitle,
-                description: this.editDescription,
-                deadline: this.editDeadline,
-                status: this.tasks[this.currentEditIndex].status,
-                lastUpdated: new Date().toISOString()
-            };
-            this.$emit('edit-task', { index: this.currentEditIndex, updatedTask });
-            this.currentEditIndex = null;
-        },
-        moveTaskToProgress(index) {
-            const task = this.tasks[index];
-            task.status = 'in-progress';
-            this.$emit('progress-task', { index, updatedTask: task });
+        updateTask({ index, updatedTask }) {
+            this.$emit('update-task', { index, updatedTask }); // Эмитируем обновление задачи
         }
     },
     template: `
     <div>
-        <!-- Задачи на начальной стадии -->
-        <h2>Не начатые задачи</h2>
-        <ul>
-            <li v-for="(task, index) in tasks.filter(task => task.status === 'not-started')" :key="index">
-                <div v-if="currentEditIndex === index">
-                    <div>
-                        <label for="edit-title">Заголовок</label>
-                        <input type="text" v-model="editTitle" id="edit-title" required />
-                    </div>
-                    <div>
-                        <label for="edit-description">Описание</label>
-                        <textarea v-model="editDescription" id="edit-description" required></textarea>
-                    </div>
-                    <div>
-                        <label for="edit-deadline">Дедлайн</label>
-                        <input type="date" v-model="editDeadline" id="edit-deadline" required />
-                    </div>
-                    <button @click="saveEditedTask">Сохранить изменения</button>
-                </div>
-                <div v-else>
-                    <strong>{{ task.title }}</strong>
-                    <p>{{ task.description }}</p>
-                    <p><em>Дедлайн: {{ task.deadline }}</em></p>
-                    <p>Status: {{ task.status }}</p>
-                    <p v-if="task.lastUpdated">Последнее редактирование: {{ task.lastUpdated }}</p>
-                    <button @click="startEditing(index)">Редактировать</button>
-                    <button @click="removeTask(index)">Удалить</button>
-                    <button @click="moveTaskToProgress(index)">Переместить в работу</button>
-                </div>
-            </li>
-        </ul>
+      <h2>Запланированные задачи</h2>
+      <ul>
+        <li v-for="(task, index) in tasks.filter(task => task.status === 'unfinished')" :key="index">
+          <task-item
+            :task="task"
+            :index="index"
+            @delete-task="deleteTask"
+            @update-task="updateTask"
+          />
+        </li>
+      </ul>
 
-        <!-- Задачи в процессе -->
-        <h2>Задачи в процессе</h2>
-        <ul>
-            <li v-for="(task, index) in tasks.filter(task => task.status === 'in-progress')" :key="index">
-                <strong>{{ task.title }}</strong>
-                <p>{{ task.description }}</p>
-                <p><em>Дедлайн: {{ task.deadline }}</em></p>
-                <p>Status: {{ task.status }}</p>
-                <p v-if="task.lastUpdated">Последнее редактирование: {{ task.lastUpdated }}</p>
-                <button @click="startEditing(index)">Редактировать</button>
-                <button @click="removeTask(index)">Удалить</button>
-            </li>
-        </ul>
+      <h2>Задачи в работе</h2>
+      <ul>
+        <li v-for="(task, index) in tasks.filter(task => task.status === 'inProgress')" :key="index">
+          <task-item
+            :task="task"
+            :index="index"
+            @delete-task="deleteTask"
+            @update-task="updateTask"
+          />
+        </li>
+      </ul>
+
+      <h2>Задачи в тестировании</h2>
+      <ul>
+        <li v-for="(task, index) in tasks.filter(task => task.status === 'testing')" :key="index">
+          <task-item
+            :task="task"
+            :index="index"
+            @delete-task="deleteTask"
+            @update-task="updateTask"
+          />
+        </li>
+      </ul>
     </div>
-    `
+  `
 });
 
-// Основной экземпляр Vue
-new Vue({
-    el: '#kanbanApp',
+
+Vue.component('task-item', {
+    props: {
+        task: {
+            type: Object,
+            required: true
+        },
+        index: {
+            type: Number,
+            required: true
+        }
+    },
     data() {
         return {
-            tasks: [] // Массив задач
+            editing: false, // Флаг редактирования
+            editedTitle: this.task.title,
+            editedDescription: this.task.description,
+            editedDeadline: this.task.deadline,
+            returnReason: '' // Причина возврата
+        };
+    },
+    methods: {
+        deleteTask() {
+            this.$emit('delete-task', this.index); // Эмитируем удаление задачи
+        },
+        editTask() {
+            this.editing = true; // Включаем режим редактирования
+        },
+        saveTask() {
+            const updatedTask = {
+                ...this.task,
+                title: this.editedTitle,
+                description: this.editedDescription,
+                deadline: this.editedDeadline,
+                lastEdited: new Date().toISOString() // Обновляем временной штамп
+            };
+            this.$emit('update-task', { index: this.index, updatedTask });
+            this.editing = false; // Выходим из режима редактирования
+        },
+        moveToInProgress() {
+            const updatedTask = { ...this.task, status: 'inProgress' };
+            this.$emit('update-task', { index: this.index, updatedTask });
+        },
+        moveToTesting() {
+            const updatedTask = { ...this.task, status: 'testing' };
+            this.$emit('update-task', { index: this.index, updatedTask });
+        },
+        returnToInProgress() {
+            if (this.returnReason) {
+                const updatedTask = {
+                    ...this.task,
+                    status: 'inProgress',
+                    returnReason: this.returnReason // Указываем причину возврата
+                };
+                this.$emit('update-task', { index: this.index, updatedTask });
+                this.returnReason = ''; // Сбрасываем причину после отправки
+            } else {
+                alert('Укажите причину возврата');
+            }
+        }
+    },
+    template: `
+    <div>
+      <div v-if="editing">
+        <!-- Форма для редактирования задачи -->
+        <div>
+          <label for="title">Заголовок</label>
+          <input type="text" id="title" v-model="editedTitle" required />
+        </div>
+        <div>
+          <label for="description">Описание</label>
+          <textarea id="description" v-model="editedDescription" required></textarea>
+        </div>
+        <div>
+          <label for="deadline">Дедлайн</label>
+          <input type="date" id="deadline" v-model="editedDeadline" required />
+        </div>
+        <button @click="saveTask">Сохранить</button>
+      </div>
+      <div v-else>
+        <!-- Отображение задачи -->
+        <strong>{{ task.title }}</strong>
+        <p>{{ task.description }}</p>
+        <p><em>Дедлайн: {{ task.deadline }}</em></p>
+        <p>Status: {{ task.status }}</p>
+        <p v-if="task.lastEdited">Последнее редактирование: {{ task.lastEdited }}</p>
+        <p v-if="task.returnReason">Причина возврата: {{ task.returnReason }}</p> <!-- Отображение причины возврата -->
+        <button @click="editTask">Редактировать</button>
+        <button @click="deleteTask">Удалить</button>
+        <button v-if="task.status === 'unfinished'" @click="moveToInProgress">Далее</button>
+        <button v-if="task.status === 'inProgress'" @click="moveToTesting">Тестирование</button>
+        <div v-if="task.status === 'testing'">
+          <label for="returnReason">Причина возврата:</label>
+          <textarea id="returnReason" v-model="returnReason" required></textarea>
+          <button @click="returnToInProgress">Вернуть в работу</button>
+        </div>
+      </div>
+    </div>
+  `
+});
+
+
+
+
+new Vue({
+    el: '#app',
+    data() {
+        return {
+            tasks: [] // Массив для хранения задач
         };
     },
     methods: {
         addTask(newTask) {
+            // Добавляем новую задачу в массив
             this.tasks.push(newTask);
         },
-        removeTask(index) {
+        deleteTask(index) {
+            // Удаляем задачу из массива
             this.tasks.splice(index, 1);
         },
-        editTask({ index, updatedTask }) {
-            this.tasks.splice(index, 1, updatedTask);
-        },
-        moveTaskToProgress({ index, updatedTask }) {
+        updateTask({ index, updatedTask }) {
+            // Обновляем задачу в массиве
             this.tasks.splice(index, 1, updatedTask);
         }
     }
