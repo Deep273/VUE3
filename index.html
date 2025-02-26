@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vue Task App</title>
+    <title>Vue Task Manager</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div id="app">
-    <!-- Компонент для создания задачи -->
-    <task-form @add-task="addTask"></task-form>
+<div id="task-manager-app">
+    <!-- Форма для создания задачи -->
+    <task-creator @add-task="addNewTask"></task-creator>
 
-    <!-- Компонент для отображения задач с возможностью редактирования -->
-    <task-column :tasks="tasks" @delete-task="deleteTask" @update-task="updateTask"></task-column>
+    <!-- Столбцы задач -->
+    <task-board :tasks="tasks" @delete-task="removeTask" @update-task="modifyTask"></task-board>
 </div>
 
 <!-- Подключаем Vue -->
