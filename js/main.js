@@ -190,51 +190,61 @@ Vue.component('task-item', {
                 alert('Укажите причину возврата');
             }
         },
-        moveToFinished() { // Новый метод для перемещения в статус "finished"
-            const updatedTask = { ...this.task, status: 'finished' };
+        moveToFinished() {
+            const currentDate = new Date();
+            const isOverdue = new Date(this.task.deadline) < currentDate; // Проверяем, просрочена ли задача
+            const updatedTask = {
+                ...this.task,
+                status: 'finished',
+                isOverdue: isOverdue // Добавляем флаг просроченности
+            };
             this.$emit('update-task', { index: this.index, updatedTask });
         }
     },
     template: `
+<div>
+  <div v-if="editing">
+    <!-- Форма для редактирования задачи -->
     <div>
-      <div v-if="editing">
-        <!-- Форма для редактирования задачи -->
-        <div>
-          <label for="title">Заголовок</label>
-          <input type="text" id="title" v-model="editedTitle" required />
-        </div>
-        <div>
-          <label for="description">Описание</label>
-          <textarea id="description" v-model="editedDescription" required></textarea>
-        </div>
-        <div>
-          <label for="deadline">Дедлайн</label>
-          <input type="date" id="deadline" v-model="editedDeadline" required />
-        </div>
-        <button @click="saveTask">Сохранить</button>
-      </div>
-      <div v-else>
-        <!-- Отображение задачи -->
-        <strong>{{ task.title }}</strong>
-        <p>{{ task.description }}</p>
-        <p><em>Дедлайн: {{ task.deadline }}</em></p>
-        <p>Status: {{ task.status }}</p>
-        <p v-if="task.lastEdited">Последнее редактирование: {{ task.lastEdited }}</p>
-        <p v-if="task.returnReason">Причина возврата: {{ task.returnReason }}</p> <!-- Отображение причины возврата -->
-        <button @click="editTask">Редактировать</button>
-        <button v-if="task.status === 'unfinished'" @click="deleteTask">Удалить</button> <!-- Удаление только в статусе "unfinished" -->
-        <button v-if="task.status === 'unfinished'" @click="moveToInProgress">Далее</button>
-        <button v-if="task.status === 'inProgress'" @click="moveToTesting">Тестирование</button>
-        <div v-if="task.status === 'testing'">
-          <label for="returnReason">Причина возврата:</label>
-          <textarea id="returnReason" v-model="returnReason" required></textarea>
-          <button @click="returnToInProgress">Вернуть в работу</button>
-          <!-- Кнопка для перемещения в статус "finished" -->
-          <button @click="moveToFinished">Завершить</button>
-        </div>
-      </div>
+      <label for="title">Заголовок</label>
+      <input type="text" id="title" v-model="editedTitle" required />
     </div>
-  `
+    <div>
+      <label for="description">Описание</label>
+      <textarea id="description" v-model="editedDescription" required></textarea>
+    </div>
+    <div>
+      <label for="deadline">Дедлайн</label>
+      <input type="date" id="deadline" v-model="editedDeadline" required />
+    </div>
+    <button @click="saveTask">Сохранить</button>
+  </div>
+  <div v-else>
+    <!-- Отображение задачи -->
+    <strong>{{ task.title }}</strong>
+    <p>{{ task.description }}</p>
+    <p><em>Дедлайн: {{ task.deadline }}</em></p>
+    <p>Status: {{ task.status }}</p>
+    <p v-if="task.lastEdited">Последнее редактирование: {{ task.lastEdited }}</p>
+    <p v-if="task.returnReason">Причина возврата: {{ task.returnReason }}</p> <!-- Отображение причины возврата -->
+    <button @click="editTask">Редактировать</button>
+    <button v-if="task.status === 'unfinished'" @click="deleteTask">Удалить</button> <!-- Удаление только в статусе "unfinished" -->
+    <button v-if="task.status === 'unfinished'" @click="moveToInProgress">Далее</button>
+    <button v-if="task.status === 'inProgress'" @click="moveToTesting">Тестирование</button>
+    <div v-if="task.status === 'testing'">
+      <label for="returnReason">Причина возврата:</label>
+      <textarea id="returnReason" v-model="returnReason" required></textarea>
+      <button @click="returnToInProgress">Вернуть в работу</button>
+      <button @click="moveToFinished">Завершить</button>
+    </div>
+    <!-- Отображаем информацию о просрочке или выполнении в срок -->
+    <p v-if="task.status === 'finished'">
+      <strong v-if="task.isOverdue">Задача просрочена!</strong>
+      <strong v-else>Задача выполнена в срок.</strong>
+    </p>
+  </div>
+</div>
+`
 });
 
 
