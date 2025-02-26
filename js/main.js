@@ -214,6 +214,12 @@ Vue.component('task-item', {
             <p>{{ task.description }}</p>
             <p><em>Дедлайн: {{ task.deadline }}</em></p>
             <p>Status: {{ task.status }}</p>
+            
+            <!-- Новая часть для отображения причины возврата -->
+            <div v-if="task.status === 'testing' && task.returnReason">
+                <p><strong>Причина возврата:</strong> {{ task.returnReason }}</p>
+            </div>
+            
             <button v-if="task.status !== 'completed'" @click="editTask">Редактировать</button>
             <button v-if="task.status === 'pending'" @click="removeTask">Удалить</button>
             <button v-if="task.status === 'pending'" @click="moveToInProgress">Далее</button>
@@ -232,6 +238,7 @@ Vue.component('task-item', {
     </div>
     `
 });
+
 
 new Vue({
     el: '#task-manager-app',

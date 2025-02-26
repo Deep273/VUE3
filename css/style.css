@@ -1,0 +1,217 @@
+/* Общие стили */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    margin: 0;
+    padding: 0;
+}
+
+/* Стиль для контейнера приложения */
+#task-manager-app {
+    display: flex;
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #1e1e1e;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* Стиль для боковой панели (форма создания задачи) */
+.task-creator {
+    background-color: #333;
+    padding: 20px;
+    border-radius: 8px;
+    width: 350px; /* Фиксированная ширина для боковой панели */
+    margin-right: 20px; /* Отступ справа, чтобы не слипались элементы */
+}
+
+/* Стиль для заголовков */
+h2, h3 {
+    color: #bb86fc;
+    text-transform: uppercase;
+    margin: 10px 0;
+}
+
+/* Стиль для формы создания задачи */
+.task-creator label {
+    display: block;
+    color: #e0e0e0;
+    margin-bottom: 5px;
+}
+
+.task-creator input,
+.task-creator textarea {
+    width: 335px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background-color: #222;
+    color: #fff;
+}
+
+.task-creator button {
+    background-color: #6200ea;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.task-creator button:hover {
+    background-color: #3700b3;
+}
+
+.task-creator button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+}
+
+/* Стиль для доски задач (столбцы справа от формы) */
+.task-board {
+    display: flex;
+    flex-direction: column; /* Вертикальное расположение для колонок */
+    flex: 1; /* Занимает все доступное пространство */
+    gap: 20px; /* Расстояние между колонками */
+}
+
+/* Заголовки для колонок */
+.task-board h2 {
+    border-bottom: 2px solid #bb86fc;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+/* Стиль для списка задач */
+.task-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.task-list li {
+    background-color: #333;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.task-item {
+    color: #e0e0e0;
+}
+
+.task-item h3 {
+    margin-top: 0;
+    color: #bb86fc;
+}
+
+.task-item button {
+    background-color: #6200ea;
+    color: #fff;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.task-item button:hover {
+    background-color: #3700b3;
+}
+
+.task-item button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+}
+
+/* Стили для формы редактирования задачи */
+.task-item .task-item input,
+.task-item .task-item textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background-color: #222;
+    color: #fff;
+}
+
+/* Стиль для отображения состояния задачи */
+.task-item p {
+    margin: 5px 0;
+}
+
+.task-item em {
+    color: #bb86fc;
+}
+
+.task-item strong {
+    color: #ff4081;
+}
+
+.task-item .task-item .completed p {
+    color: #8bc34a;
+}
+
+/* Стили для формы возврата задачи в работу */
+.task-item div textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background-color: #222;
+    color: #fff;
+}
+
+.task-item .return-reason button {
+    background-color: #ff4081;
+    color: #fff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.task-item .return-reason button:hover {
+    background-color: #d500f9;
+}
+
+h1{
+    width: 300px;
+    margin: auto;
+    margin-top: 50px;
+}
+
+/* Мобильные стили */
+@media (max-width: 768px) {
+    #task-manager-app {
+        flex-direction: column; /* На мобильных устройствах форма и столбцы будут располагаться вертикально */
+    }
+
+    .task-creator {
+        width: 100%; /* Форма занимает всю ширину */
+        margin-right: 0; /* Убираем правый отступ */
+    }
+
+    .task-board {
+        flex-direction: column; /* Все колонки в одном ряду */
+    }
+
+    .task-list {
+        margin-bottom: 20px; /* Расстояние между списками задач */
+    }
+
+    .task-item button,
+    .task-creator button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
